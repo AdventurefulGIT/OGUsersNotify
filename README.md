@@ -17,11 +17,8 @@ Step 2:
 Step 3:
 - Fill in the config.json file
 - Webhook: To receive notifications, you must have a webhook setup for your server (Video Tutorial: https://www.youtube.com/watch?v=hS_981bBG-8)
-- DeveloperID: Your discord Developer ID (Video Tutorial: https://www.youtube.com/watch?v=1T0L4c9hWTo)
 - mybbuser: You require your OGUsers mybbuser cookie( Video Tutorial: https://www.youtube.com/watch?v=36l3gKRKyfk)
-- ColorHex: The color in which you desire your notifications to be
 - Delay: Checks notification every X amount of seconds.
-- LatestNotification: Do not touch.
 
 Step 4:
 - Run the program (Recommended to be hosted on a server/VPS since it requires being ran at all times)
