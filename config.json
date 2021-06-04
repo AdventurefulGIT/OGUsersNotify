@@ -1,0 +1,9 @@
+{
+	"mybbuser":"YOUR OGUMYBBUSER TOKEN HERE",
+	"settings":{
+		"webhook_url":"YOUR WEBHOOK URL HERE",
+		"hex_color_notification":"00FF00",
+		"hex_color_message":"00FFFF",
+		"delay":10
+	}
+}
