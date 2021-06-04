@@ -1,44 +1,82 @@
-import re, cloudscraper, discord_webhook, time, json
-session = cloudscraper.create_scraper()
-config = json.load(open('config.json'))
+import requests
+import json
+import time
+import re
+
+class OGUsers:
+	def __init__(self):
+		self.session = requests.Session()
+		self.session.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+		self.config = json.load(open('config.json'))
+		self.session.cookies.set("ogusersmybbuser", self.config['mybbuser'], domain="ogusers.com")
+		self.notifications = []
+		
+		self.start_bot()
+
+	def get_notifications(self):
+		r = self.session.get(
+			url = 'https://ogusers.com/alerts.php'
+		)
+		regex = re.compile(r'action=view&amp;id=(\d+)\">\s+(.*)\s<b>(.*)<\/b>')
+		return regex.findall(r.text)
+
+	def get_messages(self):
+		r = self.session.get(
+			url = 'https://ogusers.com/private.php'
+		)
+		regex = re.compile(r'<span class=\"unreadcount\" style=\"position: absolute;\">(\d+)</span>\s*.*\s.*\s.*\s.*\">((?:(?!\">).)*?)<\/.*\s.*>(.*)<')
+		return regex.findall(r.text)
+
+	def send_notification(self, notification):
+		username = re.sub('<span .*">', '', notification[1].replace('</span>', ''))
+		data = {
+			"embeds": [
+				{
+					"title":f"{username} {notification[2]}",
+					"color": int(self.config['settings']['hex_color_notification'], 16)
+				}
+			]
+		}
+		r = self.session.post(
+			url = self.config['settings']['webhook_url'],
+			json = data
+		)
+		self.notifications.append(notification)
+	
+	def send_message(self, notification):
+		data = {
+			"embeds": [
+				{
+					"title":f"{notification[1]}({notification[0]}): {notification[2]}",
+					"color": int(self.config['settings']['hex_color_message'], 16)
+				}
+			]
+		}
+		r = self.session.post(
+			url = self.config['settings']['webhook_url'],
+			json = data
+		)
+		self.notifications.append(notification)
 
 
 
-def getLatestNotification():
-	r = session.get('https://ogusers.com/alerts.php', cookies={'mybbuser':config['mybbuser']})
-	regex = re.compile("alerts\.php\?action=(.*\n.*)<br>")
-	return regex.findall(r.text)[0]
+	def start_bot(self):
+		for notification in self.get_notifications():
+			self.notifications.append(notification)
 
-def parseNotification(notification):
-	x = re.search('<span .*\">(.*)<\/span>(.*)', notification)
-	if x:
-		notification = '{}{}'.format(x.group(1), x.group(2))
-	else:
-		x = re.search('\">\n(.*)', notification)
-		notification = '{}'.format(x.group(1))
-	notification = notification.replace('<b>', '***')
-	notification = notification.replace('</b>', '***')
-	notification = '```{}```'.format(notification)
-	return notification
+		for message in self.get_messages():
+			self.notifications.append(message)
 
-def sendNotification(notification):
-	webhook = discord_webhook.DiscordWebhook(url=config['Webhook'], content='<@{}>'.format(config['DeveloperID']))
-	embed = discord_webhook.DiscordEmbed(description=notification, color=config['ColorHEX'])
-	webhook.add_embed(embed)
-	return webhook.execute()
+		while True:
+			for notification in self.get_notifications():
+				if not notification in self.notifications:
+					self.send_notification(notification)
 
-def updateConfig(notification):
-	global config
-	config['LatestNotification'] = notification
-	with open("config.json", "w") as output:
-		json.dump(config, output, indent=4)
-	return True
+			for message in self.get_messages():
+				if not message in self.notifications:
+					self.send_message(message)
 
-while 1:
-	x = getLatestNotification()
-	if x != config['LatestNotification']:
-		updateConfig(x)
-		sendNotification(parseNotification(x))
-	else:
-		print('Waiting for notification...')
-		time.sleep(config['Delay'])
+			time.sleep(self.config['settings']['delay'])
+			
+
+OGUsers()
