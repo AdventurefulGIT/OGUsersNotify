@@ -15,9 +15,9 @@ class OGUsers:
 
 	def get_notifications(self):
 		r = self.session.get(
-			url = 'https://ogusers.com/alerts.php'
+			url = 'https://ogusers.com/alerts.php?action=modal'
 		)
-		regex = re.compile(r'action=view&amp;id=(\d+)\">\s+(.*)\s<b>(.*)<\/b>')
+		regex = re.compile(r'id=\d+\" style=\"font-size:15px;\">\s+(.*)\s<b>(.*)<\/b>')
 		return regex.findall(r.text)
 
 	def get_messages(self):
