@@ -1,11 +1,8 @@
 # OGUsersNotify
 
-Inspired by: https://ogusers.com/Thread-receive-ogu-alerts-on-discord-autobuy
 
 I decided to make a free version because it's pretty simple and fun to make.
 Sorry to the original creator if I fuck your sales up, but you probably never got any either way.
-
-__Download link__: https://github.com/AdventurefulGIT/OGUsersNotify/releases/
 
 Step 1:
 - Make sure you have Python installed (Video Tutorial: https://www.youtube.com/watch?v=dX2-V2BocqQ)
