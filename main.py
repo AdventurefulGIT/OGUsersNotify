@@ -17,7 +17,7 @@ class OGUsers:
 		r = self.session.get(
 			url = 'https://ogusers.com/alerts.php?action=modal'
 		)
-		regex = re.compile(r'id=\d+\" style=\"font-size:15px;\">\s+(.*)\s<b>(.*)<\/b>')
+		regex = re.compile(r'id=\d+\" style=\"font-size:15px;\">\s+(.*)')
 		return regex.findall(r.text)
 
 	def get_messages(self):
@@ -28,11 +28,11 @@ class OGUsers:
 		return regex.findall(r.text)
 
 	def send_notification(self, notification):
-		username = re.sub('<span .*">', '', notification[1].replace('</span>', ''))
+		f_notification = re.sub('<span .*">', '', notification.replace('</span>', '').replace('<b>', '').replace('</b>', ''))
 		data = {
 			"embeds": [
 				{
-					"title":f"{username} {notification[2]}",
+					"title":f"{f_notification}",
 					"color": int(self.config['settings']['hex_color_notification'], 16)
 				}
 			]
@@ -70,6 +70,7 @@ class OGUsers:
 		while True:
 			for notification in self.get_notifications():
 				if not notification in self.notifications:
+					print(notification, notification in self.notifications)
 					self.send_notification(notification)
 
 			for message in self.get_messages():
